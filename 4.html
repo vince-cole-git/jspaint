@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <form>
+        <fieldset>
+                <label for="selectColour">Colour:</label>
+                <input type="color" id="selectColour" />
+                
+                <label for="selectOpacity">Opacity %:</label>
+                <input type="range" id="selectOpacity" min="0" max="100" value="50" />
+
+                <label for="selectSize">Size:</label>
+                <select id="selectSize">
+                    <option>2</option><option>4</option><option>8</option><option>16</option><option>32</option><option>64</option><option>128</option><option selected>256</option>
+                </select>
+                
+                <label for="selectShape">Shape:</label>
+                <input type="radio" value="square" name="selectShape" checked />square <input type="radio" value="circle" name="selectShape" />circle 
+
+        </fieldset>
+    </form>
+    <br />
+    <canvas id="canvas1" width="800" height="500" style="border:1px solid black"></canvas>
+
+    <script>
+        const TWO_PI = 2 * Math.PI
+        const canvas = document.querySelector('#canvas1');
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = 'black'
+        ctx.globalAlpha = 0.5
+
+        let brushColour = '#000000'
+        let brushOpacity = 50
+        let brushSize = 256
+        let brushStyle = 'square'
+        
+        document.querySelector('#selectColour').addEventListener(
+            'change', (e) => {brushColour = e.target.value} 
+        );
+        
+        document.querySelector('#selectSize').addEventListener(
+            'change', (e) => {brushSize = e.target.value}
+        );
+        
+        for (let b of document.querySelectorAll('input[name="selectShape"]')) { 
+            b.addEventListener(
+                'change', (e) => {if (b.checked) {brushStyle = b.value}}
+            ) 
+        };
+
+        document.querySelector('#selectOpacity').addEventListener(
+            'change', (e) => {
+                brushOpacity = e.target.value; 
+                document.querySelector('#selectColour').style.opacity = brushOpacity / 100;
+            }
+        );
+        
+        let mousedown = false
+        window.addEventListener('mousedown', (e) => {mousedown = true})
+        window.addEventListener('mouseup', (e) => {mousedown = false})
+        window.addEventListener('mousemove', (e) => {if(mousedown){draw(e)}})
+
+        function draw(e) {
+            
+            let {pageX: x, pageY: y} = e
+            x -= canvas.offsetLeft    
+            y -= canvas.offsetTop
+            if ((x<0) || (y<0)) {return}   
+
+            ctx.fillStyle = brushColour
+            ctx.globalAlpha = parseInt(brushOpacity) / 100
+
+            switch (brushStyle) {
+                case 'square': 
+                    ctx.fillRect(x - brushSize/2, y - brushSize/2, brushSize, brushSize)
+                break
+                case 'circle': 
+                    ctx.beginPath()
+                    ctx.arc(x, y, brushSize/2, 0, TWO_PI)
+                    ctx.fill()
+                break
+            }    
+        }
+
+    </script>
+    
+</body>
+</html>
